@@ -20,7 +20,39 @@ const createPropertySchema = z.object({
     }),
 });
 
+const updatePropertySchema = z.object({
+    params: z.object({
+        id: z.uuid("id must be a valid uuid"),
+    }),
+    body: z
+        .object({
+            title: propertyFields.title.optional(),
+            description: propertyFields.description.optional(),
+            location: propertyFields.location.optional(),
+            address: propertyFields.address.optional(),
+            rent: propertyFields.rent.optional(),
+            bedrooms: propertyFields.bedrooms.optional(),
+            bathrooms: propertyFields.bathrooms.optional(),
+            amenities: propertyFields.amenities.optional(),
+            categoryId: propertyFields.categoryId.optional(),
+            status: z.enum(["AVAILABLE", "UNAVAILABLE"], "Status must be AVAILABLE or UNAVAILABLE").optional(),
+        })
+        .refine((data) => Object.values(data).some((value) => value !== undefined), "Provide at least one field to update"),
+});
+
+const managePropertyQuerySchema = z.object({
+    query: z.object({
+        status: z.enum(["AVAILABLE", "RENTED", "UNAVAILABLE"], "Status must be AVAILABLE, RENTED or UNAVAILABLE").optional(),
+        ...paginationFields,
+    }),
+});
+
 export type TCreatePropertyPayload = z.infer<typeof createPropertySchema>["body"];
+export type TUpdatePropertyPayload = z.infer<typeof updatePropertySchema>["body"];
+export type TManagePropertyQuery = z.infer<typeof managePropertyQuerySchema>["query"];
+
 export const PropertyValidation = {
     createPropertySchema,
+    updatePropertySchema,
+    managePropertyQuerySchema,
 };

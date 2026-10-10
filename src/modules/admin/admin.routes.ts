@@ -16,4 +16,6 @@ router.post("/categories", validateRequest(CategoryValidation.createCategorySche
 router.patch("/categories/:id", validateRequest(CategoryValidation.updateCategorySchema), CategoryController.updateCategory);
 router.delete("/categories/:id", validateRequest(idParamSchema), CategoryController.deleteCategory);
 
+router.delete("/properties/:id", validateRequest(idParamSchema), PropertyController.deleteProperty);
+
 export const AdminRoutes = router;

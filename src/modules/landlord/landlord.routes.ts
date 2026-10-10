@@ -11,5 +11,8 @@ const router = Router();
 router.use(auth(Role.LANDLORD));
 
 router.post("/properties", validateRequest(PropertyValidation.createPropertySchema), PropertyController.createProperty);
+router.get("/properties", validateRequest(PropertyValidation.managePropertyQuerySchema), PropertyController.getMyProperties);
+router.put("/properties/:id", validateRequest(PropertyValidation.updatePropertySchema), PropertyController.updateProperty);
+router.delete("/properties/:id", validateRequest(idParamSchema), PropertyController.deleteProperty);
 
 export const LandlordRoutes = router;

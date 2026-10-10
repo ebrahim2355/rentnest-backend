@@ -15,6 +15,42 @@ const createProperty = catchAsync(async (req, res) => {
     });
 });
 
+const getMyProperties = catchAsync(async (req, res) => {
+    const user = req.user as IAuthUser;
+    const result = await PropertyService.getMyProperties(user.id, res.locals.query);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Your properties retrieved successfully",
+        meta: result.meta,
+        data: result.data,
+    });
+});
+
+const updateProperty = catchAsync(async (req, res) => {
+    const user = req.user as IAuthUser;
+    const result = await PropertyService.updateProperty(req.params.id as string, user.id, req.body);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Property updated successfully",
+        data: result,
+    });
+});
+
+const deleteProperty = catchAsync(async (req, res) => {
+    const user = req.user as IAuthUser;
+    await PropertyService.deleteProperty(req.params.id as string, user);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Property removed successfully",
+    });
+});
+
 export const PropertyController = {
     createProperty,
+    getMyProperties,
+    updateProperty,
+    deleteProperty,
 };
