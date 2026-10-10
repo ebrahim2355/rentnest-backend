@@ -30,5 +30,51 @@ model User {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
+  properties     Property[]
+
   @@map("users")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  properties Property[]
+
+  @@map("categories")
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  RENTED
+  UNAVAILABLE
+}
+
+model Property {
+  id          String         @id @default(uuid())
+  title       String
+  description String
+  location    String
+  address     String
+  rent        Decimal        @db.Decimal(10, 2)
+  bedrooms    Int
+  bathrooms   Int
+  amenities   String[]
+  status      PropertyStatus @default(AVAILABLE)
+  isDeleted   Boolean        @default(false)
+  landlordId  String
+  categoryId  String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  landlord       User            @relation(fields: [landlordId], references: [id])
+  category       Category        @relation(fields: [categoryId], references: [id])
+
+  @@index([landlordId])
+  @@index([categoryId])
+  @@index([location])
+  @@map("properties")
 }
