@@ -5,6 +5,8 @@ import validateRequest from "../../middlewares/validateRequest";
 import { idParamSchema } from "../../validations/common.validation";
 import { CategoryController } from "../category/category.controller";
 import { CategoryValidation } from "../category/category.validation";
+import { PropertyController } from "../property/property.controller";
+import { PropertyValidation } from "../property/property.validation";
 
 const router = Router();
 
