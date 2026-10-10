@@ -1,0 +1,17 @@
+import { Router } from "express";
+import { Role } from "../../generated/prisma/client";
+import auth from "../../middlewares/auth";
+import validateRequest from "../../middlewares/validateRequest";
+import { idParamSchema } from "../../validations/common.validation";
+import { CategoryController } from "../category/category.controller";
+import { CategoryValidation } from "../category/category.validation";
+
+const router = Router();
+
+router.use(auth(Role.ADMIN));
+
+router.post("/categories", validateRequest(CategoryValidation.createCategorySchema), CategoryController.createCategory);
+router.patch("/categories/:id", validateRequest(CategoryValidation.updateCategorySchema), CategoryController.updateCategory);
+router.delete("/categories/:id", validateRequest(idParamSchema), CategoryController.deleteCategory);
+
+export const AdminRoutes = router;
