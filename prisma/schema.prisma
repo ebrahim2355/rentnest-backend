@@ -31,6 +31,9 @@ model User {
   updatedAt DateTime   @updatedAt
 
   properties     Property[]
+  rentalRequests RentalRequest[]
+  payments       Payment[]
+  reviews        Review[]
 
   @@map("users")
 }
@@ -72,9 +75,94 @@ model Property {
 
   landlord       User            @relation(fields: [landlordId], references: [id])
   category       Category        @relation(fields: [categoryId], references: [id])
+  rentalRequests RentalRequest[]
+  reviews        Review[]
 
   @@index([landlordId])
   @@index([categoryId])
   @@index([location])
   @@map("properties")
+}
+
+enum RentalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model RentalRequest {
+  id             String       @id @default(uuid())
+  propertyId     String
+  tenantId       String
+  moveInDate     DateTime
+  durationMonths Int
+  totalAmount    Decimal      @db.Decimal(10, 2)
+  message        String?
+  status         RentalStatus @default(PENDING)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  property Property  @relation(fields: [propertyId], references: [id])
+  tenant   User      @relation(fields: [tenantId], references: [id])
+  payments Payment[]
+  review   Review?
+
+  @@index([propertyId])
+  @@index([tenantId])
+  @@map("rental_requests")
+}
+
+enum PaymentProvider {
+  STRIPE
+  SSLCOMMERZ
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model Payment {
+  id              String          @id @default(uuid())
+  transactionId   String          @unique
+  rentalRequestId String
+  userId          String
+  amount          Decimal         @db.Decimal(10, 2)
+  currency        String          @default("usd")
+  method          String          @default("card")
+  provider        PaymentProvider @default(STRIPE)
+  status          PaymentStatus   @default(PENDING)
+  paidAt          DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  rentalRequest RentalRequest @relation(fields: [rentalRequestId], references: [id])
+  user          User          @relation(fields: [userId], references: [id])
+
+  @@index([rentalRequestId])
+  @@index([userId])
+  @@map("payments")
+}
+
+model Review {
+  id              String   @id @default(uuid())
+  rating          Int
+  comment         String
+  propertyId      String
+  tenantId        String
+  rentalRequestId String   @unique
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  property      Property      @relation(fields: [propertyId], references: [id])
+  tenant        User          @relation(fields: [tenantId], references: [id])
+  rentalRequest RentalRequest @relation(fields: [rentalRequestId], references: [id])
+
+  @@index([propertyId])
+  @@index([tenantId])
+  @@map("reviews")
 }
