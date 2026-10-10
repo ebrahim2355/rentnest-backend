@@ -5,7 +5,7 @@ import AppError from "../../errors/AppError";
 import { UserStatus } from "../../generated/prisma/client";
 import prisma from "../../lib/prisma";
 import { createToken } from "../../utils/jwt";
-import { TLoginPayload, TRegisterPayload } from "./auth.validation";
+import { TLoginPayload, TRegisterPayload, TUpdateProfilePayload } from "./auth.validation";
 
 const registerUser = async (payload: TRegisterPayload) => {
     const email = payload.email.toLowerCase();
@@ -71,8 +71,19 @@ const getMe = async (userId: string) => {
     return user;
 };
 
+const updateProfile = async (userId: string, payload: TUpdateProfilePayload) => {
+    const user = await prisma.user.update({
+        where: { id: userId },
+        data: payload,
+        omit: { password: true },
+    });
+
+    return user;
+};
+
 export const AuthService = {
     registerUser,
     loginUser,
     getMe,
+    updateProfile,
 };

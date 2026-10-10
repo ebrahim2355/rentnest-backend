@@ -17,9 +17,21 @@ const loginSchema = z.object({
     }),
 });
 
+const updateProfileSchema = z.object({
+    body: z
+        .object({
+            name: z.string("Name must be a string").trim().min(2, "Name must be at least 2 characters").max(100, "Name is too long").optional(),
+            phone: z.string("Phone must be a string").trim().min(6, "Phone number is too short").max(20, "Phone number is too long").optional(),
+        })
+        .refine((data) => data.name !== undefined || data.phone !== undefined, "Provide name or phone to update"),
+});
+
 export type TRegisterPayload = z.infer<typeof registerSchema>["body"];
 export type TLoginPayload = z.infer<typeof loginSchema>["body"];
+export type TUpdateProfilePayload = z.infer<typeof updateProfileSchema>["body"];
+
 export const AuthValidation = {
     registerSchema,
     loginSchema,
+    updateProfileSchema,
 };
