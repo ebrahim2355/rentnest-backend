@@ -10,7 +10,16 @@ const registerSchema = z.object({
     }),
 });
 
+const loginSchema = z.object({
+    body: z.object({
+        email: z.email("A valid email is required"),
+        password: z.string("Password is required").min(1, "Password is required"),
+    }),
+});
+
 export type TRegisterPayload = z.infer<typeof registerSchema>["body"];
+export type TLoginPayload = z.infer<typeof loginSchema>["body"];
 export const AuthValidation = {
     registerSchema,
+    loginSchema,
 };
