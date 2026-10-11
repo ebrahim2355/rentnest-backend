@@ -4,6 +4,7 @@ import { AuthRoutes } from "../modules/auth/auth.routes";
 import { CategoryRoutes } from "../modules/category/category.routes";
 import { LandlordRoutes } from "../modules/landlord/landlord.routes";
 import { PropertyRoutes } from "../modules/property/property.routes";
+import { RentalRoutes } from "../modules/rental/rental.routes";
 
 const router = Router();
 
@@ -12,6 +13,7 @@ const moduleRoutes = [
     { path: "/categories", route: CategoryRoutes },
     { path: "/properties", route: PropertyRoutes },
     { path: "/landlord", route: LandlordRoutes },
+    { path: "/rentals", route: RentalRoutes },
     { path: "/admin", route: AdminRoutes },
 ];
 
