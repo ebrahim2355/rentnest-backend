@@ -15,6 +15,30 @@ const createPayment = catchAsync(async (req, res) => {
     });
 });
 
+const confirmPayment = catchAsync(async (req, res) => {
+    const user = req.user as IAuthUser;
+    const result = await PaymentService.confirmPayment(user.id, req.body);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Payment completed successfully",
+        data: result,
+    });
+});
+
+const handleWebhook = catchAsync(async (req, res) => {
+    const signature = req.headers["stripe-signature"];
+    const result = await PaymentService.handleWebhook(req.rawBody, typeof signature === "string" ? signature : undefined);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Webhook received successfully",
+        data: result,
+    });
+});
+
 export const PaymentController = {
     createPayment,
+    confirmPayment,
+    handleWebhook,
 };
