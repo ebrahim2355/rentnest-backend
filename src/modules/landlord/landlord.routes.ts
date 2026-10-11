@@ -7,6 +7,8 @@ import { PropertyController } from "../property/property.controller";
 import { PropertyValidation } from "../property/property.validation";
 import { RentalController } from "../rental/rental.controller";
 import { RentalValidation } from "../rental/rental.validation";
+import { ReviewController } from "../review/review.controller";
+import { ReviewValidation } from "../review/review.validation";
 
 const router = Router();
 
@@ -19,5 +21,7 @@ router.delete("/properties/:id", validateRequest(idParamSchema), PropertyControl
 
 router.get("/requests", validateRequest(RentalValidation.rentalQuerySchema), RentalController.getLandlordRequests);
 router.patch("/requests/:id", validateRequest(RentalValidation.updateRentalStatusSchema), RentalController.updateRequestStatus);
+
+router.get("/reviews", validateRequest(ReviewValidation.reviewQuerySchema), ReviewController.getLandlordReviews);
 
 export const LandlordRoutes = router;
