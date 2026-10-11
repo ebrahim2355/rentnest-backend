@@ -4,7 +4,7 @@ import { Prisma, PropertyStatus, RentalStatus, Role } from "../../generated/pris
 import prisma from "../../lib/prisma";
 import { IAuthUser } from "../../middlewares/auth";
 import { getMeta, getPagination } from "../../utils/pagination";
-import { TCreatePropertyPayload, TManagePropertyQuery, TUpdatePropertyPayload } from "./property.validation";
+import { TCreatePropertyPayload, TManagePropertyQuery, TPropertyQuery, TUpdatePropertyPayload } from "./property.validation";
 
 const propertyInclude = {
     category: { select: { id: true, name: true } },
@@ -121,9 +121,84 @@ const deleteProperty = async (id: string, user: IAuthUser) => {
     ]);
 };
 
+const buildPropertyFilters = (query: TPropertyQuery): Prisma.PropertyWhereInput => {
+    const filters: Prisma.PropertyWhereInput[] = [{ isDeleted: false }, { status: PropertyStatus.AVAILABLE }];
+
+    if (query.searchTerm) {
+        filters.push({
+            OR: [
+                { title: { contains: query.searchTerm, mode: "insensitive" } },
+                { description: { contains: query.searchTerm, mode: "insensitive" } },
+                { location: { contains: query.searchTerm, mode: "insensitive" } },
+                { address: { contains: query.searchTerm, mode: "insensitive" } },
+            ],
+        });
+    }
+
+    if (query.location) {
+        filters.push({ location: { contains: query.location, mode: "insensitive" } });
+    }
+
+    if (query.type) {
+        filters.push({ category: { name: { equals: query.type, mode: "insensitive" } } });
+    }
+
+    if (query.categoryId) {
+        filters.push({ categoryId: query.categoryId });
+    }
+
+    if (query.minPrice !== undefined) {
+        filters.push({ rent: { gte: query.minPrice } });
+    }
+
+    if (query.maxPrice !== undefined) {
+        filters.push({ rent: { lte: query.maxPrice } });
+    }
+
+    if (query.bedrooms !== undefined) {
+        filters.push({ bedrooms: { gte: query.bedrooms } });
+    }
+
+    if (query.amenities) {
+        const amenities = query.amenities
+            .split(",")
+            .map((amenity) => amenity.trim())
+            .filter(Boolean);
+
+        if (amenities.length) {
+            filters.push({ amenities: { hasEvery: amenities } });
+        }
+    }
+
+    return { AND: filters };
+};
+
+const getAllProperties = async (query: TPropertyQuery) => {
+    const { page, limit, skip, sortOrder } = getPagination(query);
+    const where = buildPropertyFilters(query);
+    const orderBy: Prisma.PropertyOrderByWithRelationInput = query.sortBy === "rent" ? { rent: sortOrder } : { createdAt: sortOrder };
+
+    const [properties, total] = await Promise.all([
+        prisma.property.findMany({
+            where,
+            include: propertyInclude,
+            orderBy,
+            skip,
+            take: limit,
+        }),
+        prisma.property.count({ where }),
+    ]);
+
+    return {
+        meta: getMeta(page, limit, total),
+        data: properties,
+    };
+};
+
 export const PropertyService = {
     createProperty,
     getMyProperties,
     updateProperty,
     deleteProperty,
+    getAllProperties,
 };

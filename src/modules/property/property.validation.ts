@@ -40,6 +40,23 @@ const updatePropertySchema = z.object({
         .refine((data) => Object.values(data).some((value) => value !== undefined), "Provide at least one field to update"),
 });
 
+const propertyQuerySchema = z.object({
+    query: z
+        .object({
+            searchTerm: z.string().trim().optional(),
+            location: z.string().trim().optional(),
+            type: z.string().trim().optional(),
+            categoryId: z.uuid("categoryId must be a valid uuid").optional(),
+            minPrice: z.coerce.number("minPrice must be a number").min(0, "minPrice cannot be negative").optional(),
+            maxPrice: z.coerce.number("maxPrice must be a number").min(0, "maxPrice cannot be negative").optional(),
+            bedrooms: z.coerce.number("bedrooms must be a number").int().min(0, "bedrooms cannot be negative").optional(),
+            amenities: z.string().trim().optional(),
+            sortBy: z.enum(["rent", "createdAt"], "sortBy must be rent or createdAt").optional(),
+            ...paginationFields,
+        })
+        .refine((data) => data.minPrice === undefined || data.maxPrice === undefined || data.minPrice <= data.maxPrice, "minPrice cannot be greater than maxPrice"),
+});
+
 const managePropertyQuerySchema = z.object({
     query: z.object({
         status: z.enum(["AVAILABLE", "RENTED", "UNAVAILABLE"], "Status must be AVAILABLE, RENTED or UNAVAILABLE").optional(),
@@ -49,10 +66,12 @@ const managePropertyQuerySchema = z.object({
 
 export type TCreatePropertyPayload = z.infer<typeof createPropertySchema>["body"];
 export type TUpdatePropertyPayload = z.infer<typeof updatePropertySchema>["body"];
+export type TPropertyQuery = z.infer<typeof propertyQuerySchema>["query"];
 export type TManagePropertyQuery = z.infer<typeof managePropertyQuerySchema>["query"];
 
 export const PropertyValidation = {
     createPropertySchema,
     updatePropertySchema,
+    propertyQuerySchema,
     managePropertyQuerySchema,
 };

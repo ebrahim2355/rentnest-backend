@@ -48,9 +48,21 @@ const deleteProperty = catchAsync(async (req, res) => {
     });
 });
 
+const getAllProperties = catchAsync(async (req, res) => {
+    const result = await PropertyService.getAllProperties(res.locals.query);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Properties retrieved successfully",
+        meta: result.meta,
+        data: result.data,
+    });
+});
+
 export const PropertyController = {
     createProperty,
     getMyProperties,
     updateProperty,
     deleteProperty,
+    getAllProperties,
 };
