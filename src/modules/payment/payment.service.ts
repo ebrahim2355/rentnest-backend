@@ -7,7 +7,7 @@ import prisma from "../../lib/prisma";
 import getStripe from "../../lib/stripe";
 import { IAuthUser } from "../../middlewares/auth";
 import { getMeta, getPagination } from "../../utils/pagination";
-import { TConfirmPaymentPayload, TCreatePaymentPayload } from "./payment.validation";
+import { TConfirmPaymentPayload, TCreatePaymentPayload, TPaymentQuery } from "./payment.validation";
 
 const paymentInclude = {
     rentalRequest: {
@@ -204,8 +204,60 @@ const handleWebhook = async (rawBody: Buffer | undefined, signature: string | un
     return { received: true };
 };
 
+const getPaymentAccessFilter = (user: IAuthUser): Prisma.PaymentWhereInput => {
+    if (user.role === Role.TENANT) {
+        return { userId: user.id };
+    }
+
+    if (user.role === Role.LANDLORD) {
+        return { rentalRequest: { property: { landlordId: user.id } } };
+    }
+
+    return {};
+};
+
+const getPayments = async (user: IAuthUser, query: TPaymentQuery) => {
+    const { page, limit, skip, sortOrder } = getPagination(query);
+
+    const where: Prisma.PaymentWhereInput = {
+        ...getPaymentAccessFilter(user),
+        ...(query.status ? { status: query.status } : {}),
+    };
+
+    const [payments, total] = await Promise.all([
+        prisma.payment.findMany({
+            where,
+            include: paymentInclude,
+            orderBy: { createdAt: sortOrder },
+            skip,
+            take: limit,
+        }),
+        prisma.payment.count({ where }),
+    ]);
+
+    return {
+        meta: getMeta(page, limit, total),
+        data: payments,
+    };
+};
+
+const getPaymentById = async (id: string, user: IAuthUser) => {
+    const payment = await prisma.payment.findFirst({
+        where: { id, ...getPaymentAccessFilter(user) },
+        include: paymentInclude,
+    });
+
+    if (!payment) {
+        throw new AppError(StatusCodes.NOT_FOUND, "Payment not found", `No payment found with id ${id}`);
+    }
+
+    return payment;
+};
+
 export const PaymentService = {
     createPayment,
     confirmPayment,
     handleWebhook,
+    getPayments,
+    getPaymentById,
 };

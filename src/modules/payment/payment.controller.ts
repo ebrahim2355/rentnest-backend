@@ -37,8 +37,33 @@ const handleWebhook = catchAsync(async (req, res) => {
     });
 });
 
+const getPayments = catchAsync(async (req, res) => {
+    const user = req.user as IAuthUser;
+    const result = await PaymentService.getPayments(user, res.locals.query);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Payments retrieved successfully",
+        meta: result.meta,
+        data: result.data,
+    });
+});
+
+const getPaymentById = catchAsync(async (req, res) => {
+    const user = req.user as IAuthUser;
+    const result = await PaymentService.getPaymentById(req.params.id as string, user);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Payment retrieved successfully",
+        data: result,
+    });
+});
+
 export const PaymentController = {
     createPayment,
     confirmPayment,
     handleWebhook,
+    getPayments,
+    getPaymentById,
 };

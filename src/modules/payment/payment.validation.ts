@@ -14,9 +14,19 @@ const confirmPaymentSchema = z.object({
     }),
 });
 
+const paymentQuerySchema = z.object({
+    query: z.object({
+        status: z.enum(["PENDING", "COMPLETED", "FAILED"], "Status must be PENDING, COMPLETED or FAILED").optional(),
+        ...paginationFields,
+    }),
+});
+
 export type TCreatePaymentPayload = z.infer<typeof createPaymentSchema>["body"];
 export type TConfirmPaymentPayload = z.infer<typeof confirmPaymentSchema>["body"];
+export type TPaymentQuery = z.infer<typeof paymentQuerySchema>["query"];
+
 export const PaymentValidation = {
     createPaymentSchema,
     confirmPaymentSchema,
+    paymentQuerySchema,
 };

@@ -11,5 +11,7 @@ const router = Router();
 router.post("/create", auth(Role.TENANT), validateRequest(PaymentValidation.createPaymentSchema), PaymentController.createPayment);
 router.post("/confirm", auth(Role.TENANT), validateRequest(PaymentValidation.confirmPaymentSchema), PaymentController.confirmPayment);
 router.post("/webhook", PaymentController.handleWebhook);
+router.get("/", auth(), validateRequest(PaymentValidation.paymentQuerySchema), PaymentController.getPayments);
+router.get("/:id", auth(), validateRequest(idParamSchema), PaymentController.getPaymentById);
 
 export const PaymentRoutes = router;
