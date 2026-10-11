@@ -195,10 +195,46 @@ const getAllProperties = async (query: TPropertyQuery) => {
     };
 };
 
+const getPropertyById = async (id: string) => {
+    const property = await prisma.property.findFirst({
+        where: { id, isDeleted: false },
+        include: {
+            ...propertyInclude,
+            reviews: {
+                orderBy: { createdAt: "desc" },
+                select: {
+                    id: true,
+                    rating: true,
+                    comment: true,
+                    createdAt: true,
+                    tenant: { select: { id: true, name: true } },
+                },
+            },
+        },
+    });
+
+    if (!property) {
+        throw new AppError(StatusCodes.NOT_FOUND, "Property not found", `No property found with id ${id}`);
+    }
+
+    const rating = await prisma.review.aggregate({
+        where: { propertyId: id },
+        _avg: { rating: true },
+        _count: true,
+    });
+
+    return {
+        ...property,
+        averageRating: rating._avg.rating === null ? null : Number(rating._avg.rating.toFixed(1)),
+        totalReviews: rating._count,
+    };
+};
+
 export const PropertyService = {
     createProperty,
     getMyProperties,
     updateProperty,
     deleteProperty,
     getAllProperties,
+    getPropertyById,
 };

@@ -7,5 +7,6 @@ import { PropertyValidation } from "./property.validation";
 const router = Router();
 
 router.get("/", validateRequest(PropertyValidation.propertyQuerySchema), PropertyController.getAllProperties);
+router.get("/:id", validateRequest(idParamSchema), PropertyController.getPropertyById);
 
 export const PropertyRoutes = router;
