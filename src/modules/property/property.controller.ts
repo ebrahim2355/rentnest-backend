@@ -69,6 +69,17 @@ const getPropertyById = catchAsync(async (req, res) => {
     });
 });
 
+const getAllPropertiesForAdmin = catchAsync(async (req, res) => {
+    const result = await PropertyService.getAllPropertiesForAdmin(res.locals.query);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "All properties retrieved successfully",
+        meta: result.meta,
+        data: result.data,
+    });
+});
+
 export const PropertyController = {
     createProperty,
     getMyProperties,
@@ -76,4 +87,5 @@ export const PropertyController = {
     deleteProperty,
     getAllProperties,
     getPropertyById,
+    getAllPropertiesForAdmin,
 };

@@ -23,6 +23,9 @@ router.delete("/categories/:id", validateRequest(idParamSchema), CategoryControl
 router.get("/users", validateRequest(AdminValidation.userQuerySchema), AdminController.getAllUsers);
 router.patch("/users/:id", validateRequest(AdminValidation.updateUserStatusSchema), AdminController.updateUserStatus);
 
+router.get("/properties", validateRequest(PropertyValidation.managePropertyQuerySchema), PropertyController.getAllPropertiesForAdmin);
 router.delete("/properties/:id", validateRequest(idParamSchema), PropertyController.deleteProperty);
+
+router.get("/rentals", validateRequest(RentalValidation.rentalQuerySchema), RentalController.getAllRentalRequests);
 
 export const AdminRoutes = router;

@@ -187,6 +187,10 @@ const updateRequestStatus = async (id: string, landlordId: string, payload: TUpd
     return updatedRequest;
 };
 
+const getAllRentalRequests = async (query: TRentalQuery) => {
+    return getRentalList({}, query);
+};
+
 export const RentalService = {
     createRentalRequest,
     getMyRentalRequests,
@@ -194,4 +198,5 @@ export const RentalService = {
     cancelRentalRequest,
     getLandlordRequests,
     updateRequestStatus,
+    getAllRentalRequests,
 };

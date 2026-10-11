@@ -72,6 +72,17 @@ const updateRequestStatus = catchAsync(async (req, res) => {
     });
 });
 
+const getAllRentalRequests = catchAsync(async (req, res) => {
+    const result = await RentalService.getAllRentalRequests(res.locals.query);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "All rental requests retrieved successfully",
+        meta: result.meta,
+        data: result.data,
+    });
+});
+
 export const RentalController = {
     createRentalRequest,
     getMyRentalRequests,
@@ -79,4 +90,5 @@ export const RentalController = {
     cancelRentalRequest,
     getLandlordRequests,
     updateRequestStatus,
+    getAllRentalRequests,
 };

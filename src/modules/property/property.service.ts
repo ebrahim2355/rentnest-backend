@@ -230,6 +230,27 @@ const getPropertyById = async (id: string) => {
     };
 };
 
+const getAllPropertiesForAdmin = async (query: TManagePropertyQuery) => {
+    const { page, limit, skip, sortOrder } = getPagination(query);
+    const where: Prisma.PropertyWhereInput = query.status ? { status: query.status } : {};
+
+    const [properties, total] = await Promise.all([
+        prisma.property.findMany({
+            where,
+            include: propertyInclude,
+            orderBy: { createdAt: sortOrder },
+            skip,
+            take: limit,
+        }),
+        prisma.property.count({ where }),
+    ]);
+
+    return {
+        meta: getMeta(page, limit, total),
+        data: properties,
+    };
+};
+
 export const PropertyService = {
     createProperty,
     getMyProperties,
@@ -237,4 +258,5 @@ export const PropertyService = {
     deleteProperty,
     getAllProperties,
     getPropertyById,
+    getAllPropertiesForAdmin,
 };
