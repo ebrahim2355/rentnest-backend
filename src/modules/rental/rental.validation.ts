@@ -17,7 +17,17 @@ const createRentalSchema = z.object({
     }),
 });
 
+const rentalQuerySchema = z.object({
+    query: z.object({
+        status: z.enum(["PENDING", "APPROVED", "REJECTED", "ACTIVE", "COMPLETED", "CANCELLED"], "Invalid rental status").optional(),
+        ...paginationFields,
+    }),
+});
+
 export type TCreateRentalPayload = z.infer<typeof createRentalSchema>["body"];
+export type TRentalQuery = z.infer<typeof rentalQuerySchema>["query"];
+
 export const RentalValidation = {
     createRentalSchema,
+    rentalQuerySchema,
 };
