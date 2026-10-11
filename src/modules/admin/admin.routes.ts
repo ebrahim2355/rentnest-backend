@@ -9,6 +9,8 @@ import { PropertyController } from "../property/property.controller";
 import { PropertyValidation } from "../property/property.validation";
 import { RentalController } from "../rental/rental.controller";
 import { RentalValidation } from "../rental/rental.validation";
+import { AdminController } from "./admin.controller";
+import { AdminValidation } from "./admin.validation";
 
 const router = Router();
 
@@ -17,6 +19,9 @@ router.use(auth(Role.ADMIN));
 router.post("/categories", validateRequest(CategoryValidation.createCategorySchema), CategoryController.createCategory);
 router.patch("/categories/:id", validateRequest(CategoryValidation.updateCategorySchema), CategoryController.updateCategory);
 router.delete("/categories/:id", validateRequest(idParamSchema), CategoryController.deleteCategory);
+
+router.get("/users", validateRequest(AdminValidation.userQuerySchema), AdminController.getAllUsers);
+router.patch("/users/:id", validateRequest(AdminValidation.updateUserStatusSchema), AdminController.updateUserStatus);
 
 router.delete("/properties/:id", validateRequest(idParamSchema), PropertyController.deleteProperty);
 
