@@ -4,7 +4,7 @@ import { Prisma, PropertyStatus, RentalStatus, Role } from "../../generated/pris
 import prisma from "../../lib/prisma";
 import { IAuthUser } from "../../middlewares/auth";
 import { getMeta, getPagination } from "../../utils/pagination";
-import { TCreateRentalPayload, TRentalQuery } from "./rental.validation";
+import { TCreateRentalPayload, TRentalQuery, TUpdateRentalStatusPayload } from "./rental.validation";
 
 const rentalInclude = {
     property: {
@@ -129,9 +129,69 @@ const cancelRentalRequest = async (id: string, tenantId: string) => {
     return cancelledRequest;
 };
 
+const getLandlordRequests = async (landlordId: string, query: TRentalQuery) => {
+    return getRentalList({ property: { landlordId } }, query);
+};
+
+const allowedStatusChanges: Partial<Record<RentalStatus, RentalStatus[]>> = {
+    PENDING: [RentalStatus.APPROVED, RentalStatus.REJECTED],
+    ACTIVE: [RentalStatus.COMPLETED],
+};
+
+const updateRequestStatus = async (id: string, landlordId: string, payload: TUpdateRentalStatusPayload) => {
+    const rentalRequest = await prisma.rentalRequest.findUnique({
+        where: { id },
+        include: { property: true },
+    });
+
+    if (!rentalRequest) {
+        throw new AppError(StatusCodes.NOT_FOUND, "Rental request not found", `No rental request found with id ${id}`);
+    }
+
+    if (rentalRequest.property.landlordId !== landlordId) {
+        throw new AppError(StatusCodes.FORBIDDEN, "Forbidden access", "You can only manage requests of your own properties");
+    }
+
+    const allowedStatuses = allowedStatusChanges[rentalRequest.status] ?? [];
+
+    if (!allowedStatuses.includes(payload.status)) {
+        throw new AppError(StatusCodes.CONFLICT, "Invalid status change", `A ${rentalRequest.status} request cannot be changed to ${payload.status}`);
+    }
+
+    if (payload.status === RentalStatus.APPROVED && rentalRequest.property.status !== PropertyStatus.AVAILABLE) {
+        throw new AppError(StatusCodes.CONFLICT, "Property is not available", `This property is currently ${rentalRequest.property.status}`);
+    }
+
+    if (payload.status === RentalStatus.COMPLETED) {
+        const [, completedRequest] = await prisma.$transaction([
+            prisma.property.update({
+                where: { id: rentalRequest.propertyId },
+                data: { status: PropertyStatus.AVAILABLE },
+            }),
+            prisma.rentalRequest.update({
+                where: { id },
+                data: { status: RentalStatus.COMPLETED },
+                include: rentalInclude,
+            }),
+        ]);
+
+        return completedRequest;
+    }
+
+    const updatedRequest = await prisma.rentalRequest.update({
+        where: { id },
+        data: { status: payload.status },
+        include: rentalInclude,
+    });
+
+    return updatedRequest;
+};
+
 export const RentalService = {
     createRentalRequest,
     getMyRentalRequests,
     getRentalRequestById,
     cancelRentalRequest,
+    getLandlordRequests,
+    updateRequestStatus,
 };

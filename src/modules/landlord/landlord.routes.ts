@@ -17,4 +17,7 @@ router.get("/properties", validateRequest(PropertyValidation.managePropertyQuery
 router.put("/properties/:id", validateRequest(PropertyValidation.updatePropertySchema), PropertyController.updateProperty);
 router.delete("/properties/:id", validateRequest(idParamSchema), PropertyController.deleteProperty);
 
+router.get("/requests", validateRequest(RentalValidation.rentalQuerySchema), RentalController.getLandlordRequests);
+router.patch("/requests/:id", validateRequest(RentalValidation.updateRentalStatusSchema), RentalController.updateRequestStatus);
+
 export const LandlordRoutes = router;

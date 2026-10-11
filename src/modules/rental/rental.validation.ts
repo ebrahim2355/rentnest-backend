@@ -17,6 +17,15 @@ const createRentalSchema = z.object({
     }),
 });
 
+const updateRentalStatusSchema = z.object({
+    params: z.object({
+        id: z.uuid("id must be a valid uuid"),
+    }),
+    body: z.object({
+        status: z.enum(["APPROVED", "REJECTED", "COMPLETED"], "Status must be APPROVED, REJECTED or COMPLETED"),
+    }),
+});
+
 const rentalQuerySchema = z.object({
     query: z.object({
         status: z.enum(["PENDING", "APPROVED", "REJECTED", "ACTIVE", "COMPLETED", "CANCELLED"], "Invalid rental status").optional(),
@@ -25,9 +34,11 @@ const rentalQuerySchema = z.object({
 });
 
 export type TCreateRentalPayload = z.infer<typeof createRentalSchema>["body"];
+export type TUpdateRentalStatusPayload = z.infer<typeof updateRentalStatusSchema>["body"];
 export type TRentalQuery = z.infer<typeof rentalQuerySchema>["query"];
 
 export const RentalValidation = {
     createRentalSchema,
+    updateRentalStatusSchema,
     rentalQuerySchema,
 };

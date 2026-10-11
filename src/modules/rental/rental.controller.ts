@@ -49,9 +49,34 @@ const cancelRentalRequest = catchAsync(async (req, res) => {
     });
 });
 
+const getLandlordRequests = catchAsync(async (req, res) => {
+    const user = req.user as IAuthUser;
+    const result = await RentalService.getLandlordRequests(user.id, res.locals.query);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Rental requests retrieved successfully",
+        meta: result.meta,
+        data: result.data,
+    });
+});
+
+const updateRequestStatus = catchAsync(async (req, res) => {
+    const user = req.user as IAuthUser;
+    const result = await RentalService.updateRequestStatus(req.params.id as string, user.id, req.body);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: `Rental request ${result.status.toLowerCase()} successfully`,
+        data: result,
+    });
+});
+
 export const RentalController = {
     createRentalRequest,
     getMyRentalRequests,
     getRentalRequestById,
     cancelRentalRequest,
+    getLandlordRequests,
+    updateRequestStatus,
 };
