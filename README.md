@@ -8,8 +8,8 @@ RentNest is a backend API for a rental property marketplace. Landlords list thei
 
 | Item | Link |
 | --- | --- |
-| Live API | will be added after deployment |
-| API Docs (Swagger) | `/api/docs` on the live API |
+| Live API | https://rentnest-backend-red.vercel.app |
+| API Docs (Swagger) | https://rentnest-backend-red.vercel.app/api/docs |
 | Postman Collection | [postman/RentNest.postman_collection.json](./postman/RentNest.postman_collection.json) |
 
 ## Admin Credentials
