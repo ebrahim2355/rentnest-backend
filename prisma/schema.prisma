@@ -66,6 +66,7 @@ model Property {
   bedrooms    Int
   bathrooms   Int
   amenities   String[]
+  images      String[]       @default([])
   status      PropertyStatus @default(AVAILABLE)
   isDeleted   Boolean        @default(false)
   landlordId  String

@@ -10,6 +10,7 @@ const propertyFields = {
     bedrooms: z.number("Bedrooms must be a number").int("Bedrooms must be a whole number").min(0, "Bedrooms cannot be negative").max(50, "Bedrooms is too high"),
     bathrooms: z.number("Bathrooms must be a number").int("Bathrooms must be a whole number").min(0, "Bathrooms cannot be negative").max(50, "Bathrooms is too high"),
     amenities: z.array(z.string("Amenity must be a string").trim().min(1, "Amenity cannot be empty"), "Amenities must be a list").max(30, "Too many amenities"),
+    images: z.array(z.url("Every image must be a valid URL"), "Images must be a list").max(8, "A property can have 8 images at most"),
     categoryId: z.uuid("categoryId must be a valid uuid"),
 };
 
@@ -17,6 +18,7 @@ const createPropertySchema = z.object({
     body: z.object({
         ...propertyFields,
         amenities: propertyFields.amenities.default([]),
+        images: propertyFields.images.default([]),
     }),
 });
 
@@ -34,6 +36,7 @@ const updatePropertySchema = z.object({
             bedrooms: propertyFields.bedrooms.optional(),
             bathrooms: propertyFields.bathrooms.optional(),
             amenities: propertyFields.amenities.optional(),
+            images: propertyFields.images.optional(),
             categoryId: propertyFields.categoryId.optional(),
             status: z.enum(["AVAILABLE", "UNAVAILABLE"], "Status must be AVAILABLE or UNAVAILABLE").optional(),
         })
