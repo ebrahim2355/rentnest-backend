@@ -25,7 +25,10 @@ const paymentInclude = {
 const getPayableRentalRequest = async (tenantId: string, rentalRequestId: string) => {
     const rentalRequest = await prisma.rentalRequest.findUnique({
         where: { id: rentalRequestId },
-        include: { property: { select: { title: true } } },
+        include: {
+            property: { select: { title: true } },
+            tenant: { select: { email: true } },
+        },
     });
 
     if (!rentalRequest) {
@@ -139,6 +142,7 @@ const createCheckoutSession = async (tenantId: string, payload: TCheckoutPayment
 
     const session = await stripe.checkout.sessions.create({
         mode: "payment",
+        customer_email: rentalRequest.tenant.email,
         line_items: [
             {
                 quantity: 1,
