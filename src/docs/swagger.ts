@@ -66,6 +66,7 @@ export const endpoints: IEndpointDoc[] = [
             bedrooms: 2,
             bathrooms: 2,
             amenities: ["wifi", "lift", "parking"],
+            images: ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80"],
             categoryId: uuid,
         },
         successStatus: 201,
@@ -111,6 +112,7 @@ export const endpoints: IEndpointDoc[] = [
         access: "Landlord",
         query: pagination,
     },
+    { method: "get", path: "/landlord/stats", tag: "Landlord", summary: "Get dashboard numbers for own properties, requests and earnings", access: "Landlord" },
     {
         method: "post",
         path: "/rentals",
@@ -128,6 +130,7 @@ export const endpoints: IEndpointDoc[] = [
         access: "Tenant",
         query: ["status", ...pagination],
     },
+    { method: "get", path: "/rentals/stats", tag: "Rental Requests", summary: "Get dashboard numbers for own requests and payments", access: "Tenant" },
     {
         method: "get",
         path: "/rentals/{id}",
@@ -147,9 +150,18 @@ export const endpoints: IEndpointDoc[] = [
     },
     {
         method: "post",
+        path: "/payments/checkout",
+        tag: "Payments",
+        summary: "Create a Stripe Checkout session and get the payment page url",
+        access: "Tenant",
+        body: { rentalRequestId: uuid, clientUrl: "http://localhost:3000" },
+        successStatus: 201,
+    },
+    {
+        method: "post",
         path: "/payments/confirm",
         tag: "Payments",
-        summary: "Confirm the payment with Stripe and activate the rental",
+        summary: "Confirm the payment with Stripe and activate the rental (payment intent id or checkout session id)",
         access: "Tenant",
         body: { transactionId: "pi_3PExample", paymentMethodId: "pm_card_visa" },
     },
@@ -198,6 +210,7 @@ export const endpoints: IEndpointDoc[] = [
         access: "Admin",
         query: ["status", ...pagination],
     },
+    { method: "get", path: "/admin/stats", tag: "Admin", summary: "Get platform numbers for users, properties, requests and revenue", access: "Admin" },
     {
         method: "post",
         path: "/admin/categories",

@@ -478,7 +478,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"title\": \"Sunny 2 bedroom apartment in Dhanmondi\",\n    \"description\": \"A bright apartment near the lake with a balcony and lift.\",\n    \"location\": \"Dhanmondi, Dhaka\",\n    \"address\": \"House 12, Road 5, Dhanmondi\",\n    \"rent\": 450,\n    \"bedrooms\": 2,\n    \"bathrooms\": 2,\n    \"amenities\": [\n        \"wifi\",\n        \"lift\",\n        \"parking\"\n    ],\n    \"categoryId\": \"{{categoryId}}\"\n}",
+              "raw": "{\n    \"title\": \"Sunny 2 bedroom apartment in Dhanmondi\",\n    \"description\": \"A bright apartment near the lake with a balcony and lift.\",\n    \"location\": \"Dhanmondi, Dhaka\",\n    \"address\": \"House 12, Road 5, Dhanmondi\",\n    \"rent\": 450,\n    \"bedrooms\": 2,\n    \"bathrooms\": 2,\n    \"amenities\": [\n        \"wifi\",\n        \"lift\",\n        \"parking\"\n    ],\n    \"images\": [\n        \"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80\"\n    ],\n    \"categoryId\": \"{{categoryId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -759,6 +759,34 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get dashboard numbers for own properties, requests and earnings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/landlord/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "landlord",
+                "stats"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{landlordToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -852,6 +880,34 @@
                   "value": "",
                   "disabled": true
                 }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tenantToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get dashboard numbers for own requests and payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rentals/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rentals",
+                "stats"
               ]
             },
             "auth": {
@@ -987,7 +1043,49 @@
           ]
         },
         {
-          "name": "Confirm the payment with Stripe and activate the rental",
+          "name": "Create a Stripe Checkout session and get the payment page url",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "checkout"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tenantToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"rentalRequestId\": \"{{rentalRequestId}}\",\n    \"clientUrl\": \"http://localhost:3000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm the payment with Stripe and activate the rental (payment intent id or checkout session id)",
           "request": {
             "method": "POST",
             "header": [
@@ -1394,6 +1492,34 @@
                   "value": "",
                   "disabled": true
                 }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get platform numbers for users, properties, requests and revenue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "stats"
               ]
             },
             "auth": {

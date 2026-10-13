@@ -137,13 +137,23 @@ PENDING  --landlord approves-->  APPROVED  --tenant pays with Stripe-->  ACTIVE 
 2. The landlord approves or rejects the request.
 3. For an approved request, the tenant calls `POST /api/payments/create`. The server creates a Stripe payment intent and saves a payment with the status `PENDING`.
 4. The tenant calls `POST /api/payments/confirm`. The server checks the payment with Stripe. When Stripe says it succeeded, the payment becomes `COMPLETED`, the rental becomes `ACTIVE` and the property becomes `RENTED`. If the card is declined, the payment becomes `FAILED`.
-5. When the stay is over, the landlord marks the rental as `COMPLETED`. The property becomes `AVAILABLE` again and the tenant can leave a review.
+5. When the stay is over, the landlord marks the rental as `COMPLETED`. The property becomes `AVAILABLE` again. The tenant can leave a review while the rental is `ACTIVE` or `COMPLETED`.
 
 There is also a Stripe webhook endpoint, `POST /api/payments/webhook`, which handles the `payment_intent.succeeded` and `payment_intent.payment_failed` events.
 
-### Testing a payment
+### Stripe Checkout for the frontend
 
-There is no frontend, so the card is confirmed from the API with a Stripe test payment method.
+The frontend uses the hosted Stripe Checkout page.
+
+1. The tenant calls `POST /api/payments/checkout` with the `rentalRequestId`. The server creates a Checkout session, saves a `PENDING` payment and returns the `checkoutUrl`.
+2. The frontend sends the tenant to that url. After paying, Stripe sends the tenant back to `/payment/success?session_id=...` on the frontend. If the tenant goes back, Stripe sends them to `/payment/cancel`.
+3. The success page calls `POST /api/payments/confirm` with the session id as `transactionId`. The server asks Stripe if the session is paid and then completes the payment.
+
+The frontend address comes from `CLIENT_URL`. More than one address can be given with commas, and the first one is the default.
+
+### Testing a payment from the API
+
+Without a frontend, the card can be confirmed from the API with a Stripe test payment method.
 
 | paymentMethodId | Result |
 | --- | --- |
@@ -195,6 +205,7 @@ Query options of `GET /properties`: `searchTerm`, `location`, `type`, `categoryI
 | GET | `/landlord/requests` | Landlord | Get rental requests of own properties |
 | PATCH | `/landlord/requests/:id` | Landlord | Approve, reject or complete a request |
 | GET | `/landlord/reviews` | Landlord | Get reviews of own properties |
+| GET | `/landlord/stats` | Landlord | Get dashboard numbers and earnings |
 
 ### Rental Requests
 
@@ -204,12 +215,14 @@ Query options of `GET /properties`: `searchTerm`, `location`, `type`, `categoryI
 | GET | `/rentals` | Tenant | Get own rental requests |
 | GET | `/rentals/:id` | Tenant, Landlord, Admin | Get rental request details |
 | PATCH | `/rentals/:id/cancel` | Tenant | Cancel a pending or approved request |
+| GET | `/rentals/stats` | Tenant | Get dashboard numbers for own requests and payments |
 
 ### Payments
 
 | Method | Endpoint | Access | Description |
 | --- | --- | --- | --- |
 | POST | `/payments/create` | Tenant | Create a Stripe payment intent for an approved request |
+| POST | `/payments/checkout` | Tenant | Create a Stripe Checkout session and get the payment page url |
 | POST | `/payments/confirm` | Tenant | Confirm the payment and activate the rental |
 | POST | `/payments/webhook` | Stripe | Webhook for Stripe payment events |
 | GET | `/payments` | Logged in user | Get the payment history |
@@ -230,6 +243,7 @@ Query options of `GET /properties`: `searchTerm`, `location`, `type`, `categoryI
 | GET | `/admin/properties` | Admin | Get all properties |
 | DELETE | `/admin/properties/:id` | Admin | Remove any property |
 | GET | `/admin/rentals` | Admin | Get all rental requests |
+| GET | `/admin/stats` | Admin | Get platform numbers and revenue |
 | POST | `/admin/categories` | Admin | Create a category |
 | PATCH | `/admin/categories/:id` | Admin | Update a category |
 | DELETE | `/admin/categories/:id` | Admin | Delete a category that has no property |
@@ -303,6 +317,7 @@ DATABASE_URL=postgresql://user:password@localhost:5432/rentnest
 JWT_SECRET=your_jwt_secret
 STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+CLIENT_URL=http://localhost:3000
 ADMIN_EMAIL=admin@rentnest.com
 ADMIN_PASSWORD=admin123
 ```
