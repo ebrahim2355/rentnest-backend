@@ -9,6 +9,7 @@ import { RentalController } from "../rental/rental.controller";
 import { RentalValidation } from "../rental/rental.validation";
 import { ReviewController } from "../review/review.controller";
 import { ReviewValidation } from "../review/review.validation";
+import { StatsController } from "../stats/stats.controller";
 
 const router = Router();
 
@@ -23,5 +24,7 @@ router.get("/requests", validateRequest(RentalValidation.rentalQuerySchema), Ren
 router.patch("/requests/:id", validateRequest(RentalValidation.updateRentalStatusSchema), RentalController.updateRequestStatus);
 
 router.get("/reviews", validateRequest(ReviewValidation.reviewQuerySchema), ReviewController.getLandlordReviews);
+
+router.get("/stats", StatsController.getLandlordStats);
 
 export const LandlordRoutes = router;

@@ -9,6 +9,7 @@ import { PropertyController } from "../property/property.controller";
 import { PropertyValidation } from "../property/property.validation";
 import { RentalController } from "../rental/rental.controller";
 import { RentalValidation } from "../rental/rental.validation";
+import { StatsController } from "../stats/stats.controller";
 import { AdminController } from "./admin.controller";
 import { AdminValidation } from "./admin.validation";
 
@@ -27,5 +28,7 @@ router.get("/properties", validateRequest(PropertyValidation.managePropertyQuery
 router.delete("/properties/:id", validateRequest(idParamSchema), PropertyController.deleteProperty);
 
 router.get("/rentals", validateRequest(RentalValidation.rentalQuerySchema), RentalController.getAllRentalRequests);
+
+router.get("/stats", StatsController.getAdminStats);
 
 export const AdminRoutes = router;
