@@ -12,6 +12,7 @@ const config = {
     stripeSecretKey: process.env.STRIPE_SECRET_KEY || "",
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
     currency: "usd",
+    clientUrls: (process.env.CLIENT_URL || "http://localhost:3000").split(",").map((url) => url.trim().replace(/\/$/, "")),
     admin: {
         name: "RentNest Admin",
         email: process.env.ADMIN_EMAIL || "admin@rentnest.com",

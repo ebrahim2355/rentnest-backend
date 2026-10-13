@@ -9,6 +9,7 @@ import { PaymentValidation } from "./payment.validation";
 const router = Router();
 
 router.post("/create", auth(Role.TENANT), validateRequest(PaymentValidation.createPaymentSchema), PaymentController.createPayment);
+router.post("/checkout", auth(Role.TENANT), validateRequest(PaymentValidation.checkoutPaymentSchema), PaymentController.createCheckoutSession);
 router.post("/confirm", auth(Role.TENANT), validateRequest(PaymentValidation.confirmPaymentSchema), PaymentController.confirmPayment);
 router.post("/webhook", PaymentController.handleWebhook);
 router.get("/", auth(), validateRequest(PaymentValidation.paymentQuerySchema), PaymentController.getPayments);

@@ -15,6 +15,17 @@ const createPayment = catchAsync(async (req, res) => {
     });
 });
 
+const createCheckoutSession = catchAsync(async (req, res) => {
+    const user = req.user as IAuthUser;
+    const result = await PaymentService.createCheckoutSession(user.id, req.body);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.CREATED,
+        message: "Checkout session created successfully",
+        data: result,
+    });
+});
+
 const confirmPayment = catchAsync(async (req, res) => {
     const user = req.user as IAuthUser;
     const result = await PaymentService.confirmPayment(user.id, req.body);
@@ -62,6 +73,7 @@ const getPaymentById = catchAsync(async (req, res) => {
 
 export const PaymentController = {
     createPayment,
+    createCheckoutSession,
     confirmPayment,
     handleWebhook,
     getPayments,
