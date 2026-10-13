@@ -24,8 +24,8 @@ const createReview = async (tenantId: string, payload: TCreateReviewPayload) => 
         throw new AppError(StatusCodes.FORBIDDEN, "Forbidden access", "You can only review your own rental");
     }
 
-    if (rentalRequest.status !== RentalStatus.COMPLETED) {
-        throw new AppError(StatusCodes.CONFLICT, "Review is not allowed", "You can leave a review only after the rental is completed");
+    if (rentalRequest.status !== RentalStatus.ACTIVE && rentalRequest.status !== RentalStatus.COMPLETED) {
+        throw new AppError(StatusCodes.CONFLICT, "Review is not allowed", "You can leave a review only for an active or completed rental");
     }
 
     if (rentalRequest.review) {

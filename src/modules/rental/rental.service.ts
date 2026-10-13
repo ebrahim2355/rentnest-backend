@@ -8,9 +8,10 @@ import { TCreateRentalPayload, TRentalQuery, TUpdateRentalStatusPayload } from "
 
 const rentalInclude = {
     property: {
-        select: { id: true, title: true, location: true, address: true, rent: true, status: true, landlordId: true },
+        select: { id: true, title: true, location: true, address: true, rent: true, images: true, status: true, landlordId: true },
     },
     tenant: { select: { id: true, name: true, email: true, phone: true } },
+    review: { select: { id: true, rating: true, comment: true } },
 } satisfies Prisma.RentalRequestInclude;
 
 const getRentalList = async (where: Prisma.RentalRequestWhereInput, query: TRentalQuery) => {
@@ -87,7 +88,6 @@ const getRentalRequestById = async (id: string, user: IAuthUser) => {
                 orderBy: { createdAt: "desc" },
                 select: { id: true, transactionId: true, amount: true, status: true, paidAt: true },
             },
-            review: { select: { id: true, rating: true, comment: true } },
         },
     });
 
